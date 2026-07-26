@@ -365,8 +365,9 @@ a { color: var(--yellow); text-decoration: none; }
 .topbar {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 13px 20px;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  padding: 13px 18px;
   margin-bottom: 16px;
   background: linear-gradient(90deg, var(--yellow), var(--yellow-2) 62%, #E9BC00);
   border-radius: var(--r);
@@ -381,9 +382,25 @@ a { color: var(--yellow); text-decoration: none; }
   color: var(--yellow);
   font-size: 15px;
 }
-.topbar h1 { font-size: 19px; font-weight: 700; }
+.topbar h1 { font-size: 19px; font-weight: 700; white-space: nowrap; }
 .topbar h1 em { font-style: normal; font-weight: 500; opacity: .62; }
 .topbar .spacer { flex: 1; }
+
+/* Pílulas e botões formam um bloco só: quando falta largura, ele desce
+   inteiro para a linha de baixo em vez de espremer o título. */
+.topbar-tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-left: auto;
+}
+.pill {
+  max-width: 340px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 .pill {
   display: inline-flex;
@@ -890,14 +907,18 @@ table.dataTable tbody td.num { font-family: var(--font-mono); color: var(--text)
   .g-3, .g-funnel, .g-wide { grid-template-columns: 1fr 1fr; }
   .g-funnel > :first-child { grid-column: 1 / -1; }
 }
+@media (max-width: 1100px) {
+  .topbar-tools { margin-left: 0; width: 100%; }
+  .pill { max-width: 100%; font-size: 11.5px; }
+}
 @media (max-width: 900px) {
   .sidebar { width: var(--sidebar-w-collapsed); }
   .sidebar .nav-item span, .sidebar .sidebar-brand div, .sidebar .user-chip div { display: none; }
   .sidebar .nav-item { justify-content: center; }
   .main { margin-left: var(--sidebar-w-collapsed); padding: 16px 14px 50px; }
   .g-2, .g-3, .g-funnel, .g-wide { grid-template-columns: 1fr; }
-  .topbar { flex-wrap: wrap; gap: 10px; }
-  .topbar h1 { font-size: 16px; }
+  .topbar { gap: 10px; }
+  .topbar h1 { font-size: 16px; white-space: normal; }
 }
 @media (max-width: 560px) {
   .kpi-grid { grid-template-columns: 1fr 1fr; gap: 9px; }
@@ -1191,6 +1212,112 @@ table.dataTable tbody td.num { font-family: var(--font-mono); color: var(--text)
 }
 .filterbar optgroup option { color: var(--text-2); font-weight: 400; letter-spacing: 0; }
 
+/* ==========================================================================
+   15. FILTRO ATIVO
+   Campo com valor escolhido ganha um amarelo translúcido e fica assim até
+   ser trocado — dá para ver de relance o que está recortando a tela.
+   ========================================================================== */
+
+.input.is-active,
+.select.is-active {
+  background: rgba(255, 212, 0, .10);
+  border-color: rgba(255, 212, 0, .55);
+  color: var(--yellow);
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px rgba(255, 212, 0, .12);
+}
+.select.is-active option { background: #0F0F12; color: var(--text); font-weight: 400; }
+
+.f-field.is-active .fl-label { color: var(--yellow); }
+.f-field { position: relative; }
+.f-field.is-active::before {
+  content: '';
+  position: absolute;
+  left: -6px; top: 20px; bottom: 2px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--yellow);
+  opacity: .55;
+}
+
+/* Barra de ferramentas do gráfico: mais visível e fora do caminho */
+.apexcharts-toolbar {
+  gap: 3px;
+  padding: 3px 4px !important;
+  background: rgba(11, 11, 13, .72);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  backdrop-filter: blur(6px);
+}
+.apexcharts-toolbar > * { color: #9A9AA4 !important; }
+.apexcharts-toolbar > *:hover { color: var(--yellow) !important; }
+.apexcharts-menu-icon svg, .apexcharts-zoom-icon svg,
+.apexcharts-zoomin-icon svg, .apexcharts-zoomout-icon svg,
+.apexcharts-reset-icon svg { fill: currentColor; }
+
+/* Durante a exportação, a mobília da interface sai da foto */
+body.exporting .tip-btn,
+body.exporting .apexcharts-toolbar,
+body.exporting .dt-buttons,
+body.exporting .dataTables_filter,
+body.exporting .dataTables_length,
+body.exporting .dataTables_paginate,
+body.exporting .tbl-filter { display: none !important; }
+body.exporting .panel { box-shadow: none; }
+
+/* Cabeçalho da tabela: botões de exportação à esquerda, seleção à direita */
+.dt-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.dt-head .dt-buttons { margin-bottom: 0; }
+.tbl-filter { min-width: 260px; max-width: 380px; flex: 1; }
+.tbl-filter .fl-label {
+  display: block;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  margin-bottom: 6px;
+}
+.tbl-filter .select { padding: 9px 11px; font-size: 12.5px; }
+
+/* Botão de relatório no topo: legível sobre a faixa amarela */
+.btn-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 15px;
+  background: #0B0B0D;
+  border: 1px solid rgba(255, 212, 0, .35);
+  border-radius: var(--r-pill);
+  color: var(--yellow);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background .18s, transform .15s, box-shadow .2s;
+}
+.btn-export:hover {
+  background: #16161A;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .35);
+}
+.btn-export i { font-size: 13px; }
+.btn-export.ghost { color: var(--text-2); border-color: rgba(0, 0, 0, .25); }
+.btn-export.ghost:hover { color: var(--yellow); }
+
+@media (max-width: 900px) {
+  .btn-export span { display: none; }
+  .btn-export { padding: 9px 12px; }
+}
+
   </style>
 </head>
 <body>
@@ -1269,13 +1396,19 @@ table.dataTable tbody td.num { font-family: var(--font-mono); color: var(--text)
         <button class="icon-btn tb-icon" id="toggle-sidebar" title="Recolher menu" aria-label="Recolher menu">
           <i class="fa-solid fa-bars"></i></button>
         <h1 id="page-title">Dashboard <em>| Resumo executivo</em></h1>
-        <span class="spacer"></span>
-        <span class="pill" id="rows-pill"></span>
-        <span class="pill" id="filters-pill" style="display:none;max-width:320px;overflow:hidden;text-overflow:ellipsis"></span>
-        <span class="pill" id="rate-pill" style="display:none"></span>
-        <span class="pill" id="period-pill"></span>
-        <button class="icon-btn" id="btn-pdf" title="Exportar painel em PDF" aria-label="Exportar painel em PDF">
-          <i class="fa-solid fa-file-pdf"></i></button>
+
+        <div class="topbar-tools">
+          <span class="pill" id="filters-pill" style="display:none"></span>
+          <span class="pill" id="rate-pill" style="display:none"></span>
+          <span class="pill" id="rows-pill"></span>
+          <span class="pill" id="period-pill"></span>
+          <button class="btn-export" id="btn-report"
+                  title="Relatório executivo em PDF: resumo, gráficos e campanhas">
+            <i class="fa-solid fa-file-lines"></i><span>Relatório</span></button>
+          <button class="btn-export ghost" id="btn-pdf"
+                  title="Salvar esta tela como está, em PDF">
+            <i class="fa-solid fa-camera"></i><span>Tela em PDF</span></button>
+        </div>
       </header>
 
       <!-- Filtros globais -->
@@ -1517,6 +1650,7 @@ table.dataTable tbody td.num { font-family: var(--font-mono); color: var(--text)
   <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <script>
 /* ==========================================================================
    SCALATO BI — utils.js
@@ -2410,8 +2544,13 @@ const CALENDAR = (() => {
 
   function paintInputs() {
     const a = U.$('#f-from'), b = U.$('#f-to');
-    if (a) a.value = from ? U.toDate(from).toLocaleDateString('pt-BR') : '';
-    if (b) b.value = to   ? U.toDate(to).toLocaleDateString('pt-BR')   : '';
+    for (const [el, v] of [[a, from], [b, to]]) {
+      if (!el) continue;
+      el.value = v ? U.toDate(v).toLocaleDateString('pt-BR') : '';
+      el.classList.toggle('is-active', !!v);
+      const field = el.closest('.f-field');
+      if (field) field.classList.toggle('is-active', !!v);
+    }
   }
 
   /* ------------------------------------------------------------------ */
@@ -2801,10 +2940,13 @@ const FILTERS = (() => {
         const opts = optionsFor(rowsExcept(rows, key), key);
         const values = opts.map(o => o.value);
 
-        // Existe no período, mas está bloqueado por outro filtro. Fica numa
-        // seção à parte em vez de sumir: sem isso, escolher uma campanha do
-        // Meta trancaria a pessoa fora do Google até limpar tudo.
-        const blocked = optionsFor(rowsDateOnly(rows), key).filter(o => !values.includes(o.value));
+        // Campanha, status, produto e afins mostram só o que é escolhível
+        // agora. A Origem é a exceção: por ser o filtro mais grosso, ela
+        // mantém as opções bloqueadas numa seção à parte, senão escolher uma
+        // campanha do Meta trancaria a pessoa fora do Google.
+        const blocked = key === 'source'
+          ? optionsFor(rowsDateOnly(rows), key).filter(o => !values.includes(o.value))
+          : [];
 
         if (state[key] && !values.includes(state[key])) {
           if (key === lockedKey) {
@@ -2827,9 +2969,13 @@ const FILTERS = (() => {
             ? `<optgroup label="Exige soltar outro filtro">${blocked.map(opt).join('')}</optgroup>`
             : '');
         sel.value = state[key] || '';
+        sel.classList.toggle('is-active', !!state[key]);
 
         const field = sel.closest('.f-field');
-        if (field) field.style.display = (opts.length || blocked.length) ? '' : 'none';
+        if (field) {
+          field.style.display = (opts.length || blocked.length) ? '' : 'none';
+          field.classList.toggle('is-active', !!state[key]);
+        }
       }
       if (!changed) break;
     }
@@ -3015,6 +3161,13 @@ const FILTERS = (() => {
     return `${U.dLabel(U.toDate(state.from))} — ${U.dLabel(U.toDate(state.to))}`;
   }
 
+  /** Versão compacta do período, para caber na barra do topo. */
+  function periodShort() {
+    if (!state.from || !state.to) return 'Todo o período';
+    const f = d => U.toDate(d).toLocaleDateString('pt-BR');
+    return `${f(state.from)} — ${f(state.to)}`;
+  }
+
   /** Janela usada nas comparações dos cards, para exibir no topo. */
   function compareLabel() {
     const p = CALENDAR.previousWindow();
@@ -3046,7 +3199,7 @@ const FILTERS = (() => {
   }
 
   return { state, populate, refreshOptions, apply, previous, bind, onChange,
-           periodLabel, compareLabel, rateLabel, activeLabel };
+           periodLabel, periodShort, compareLabel, rateLabel, activeLabel };
 })();
 
 /* ==========================================================================
@@ -3120,7 +3273,8 @@ const CHARTS = (() => {
       },
       theme: { mode: 'dark' },
       colors: PALETTE,
-      grid: { borderColor: C.grid, strokeDashArray: 4, padding: { left: 6, right: 10 } },
+      // Espaço no topo para a barra de ferramentas não pousar sobre o gráfico
+      grid: { borderColor: C.grid, strokeDashArray: 4, padding: { top: 26, left: 6, right: 12, bottom: 0 } },
       dataLabels: { enabled: false },
       tooltip: {
         theme: 'dark',
@@ -3128,10 +3282,13 @@ const CHARTS = (() => {
         marker: { show: true }
       },
       legend: {
+        position: 'bottom',
+        horizontalAlign: 'center',
         labels: { colors: C.text },
         fontSize: '12px',
         markers: { radius: 12, width: 10, height: 10 },
-        itemMargin: { horizontal: 9 }
+        itemMargin: { horizontal: 9, vertical: 4 },
+        offsetY: 4
       },
       xaxis: {
         labels: { style: { colors: C.text, fontSize: '11px' } },
@@ -3210,26 +3367,48 @@ const CHARTS = (() => {
     yaxis: { labels: horizontal ? { style: { colors: C.text, fontSize: '11px' }, maxWidth: 230 } : yFmt }
   });
 
+  /* Cor do texto que cai dentro de cada fatia: escuro sobre amarelo e
+     branco, claro sobre roxo e cinza. Sem isso o número some no fundo. */
+  const sliceTextColor = i => {
+    const c = PALETTE[i % PALETTE.length];
+    return (c === C.yellow || c === C.yellow2 || c === C.white) ? '#0B0B0D' : '#FFFFFF';
+  };
+
   const donut = (labels, values, fmt = fmtInt) => ({
-    chart: { type: 'donut', height: 300 },
+    chart: { type: 'donut', height: 320 },
     series: values,
     labels,
-    stroke: { width: 2, colors: ['#17171A'] },
+    stroke: { width: 3, colors: ['#17171A'] },
+    grid: { padding: { top: 26, bottom: 0, left: 0, right: 0 } },
     plotOptions: {
       pie: {
+        expandOnClick: false,
+        customScale: 0.92,
+        dataLabels: { offset: -30, minAngleToShowLabel: 12 },
         donut: {
-          size: '68%',
+          size: '66%',
           labels: {
             show: true,
-            name:  { color: C.text, fontSize: '12px' },
-            value: { color: '#FFF', fontSize: '22px', fontFamily: "'Space Grotesk', sans-serif", formatter: fmt.formatter },
-            total: { show: true, label: 'Total', color: C.text, formatter: w => fmt.formatter(w.globals.seriesTotals.reduce((a, b) => a + b, 0)) }
+            name:  { color: C.text, fontSize: '12px', offsetY: 22 },
+            value: { color: '#FFF', fontSize: '23px', fontWeight: 700, offsetY: -14,
+                     fontFamily: "'Space Grotesk', sans-serif", formatter: fmt.formatter },
+            total: { show: true, label: 'Total', color: C.text, fontSize: '11px',
+                     formatter: w => fmt.formatter(w.globals.seriesTotals.reduce((a, b) => a + b, 0)) }
           }
         }
       }
     },
     legend: { position: 'bottom', horizontalAlign: 'center', labels: { colors: C.text } },
-    dataLabels: { enabled: true, style: { fontSize: '11px', fontWeight: 700, colors: ['#0B0B0D'] }, dropShadow: { enabled: false } },
+    dataLabels: {
+      enabled: true,
+      formatter: v => U.pct(v, 1),
+      style: {
+        fontSize: '13px', fontWeight: 800,
+        fontFamily: "'Space Grotesk', sans-serif",
+        colors: labels.map((_, i) => sliceTextColor(i))
+      },
+      dropShadow: { enabled: false }
+    },
     tooltip: { y: fmt }
   });
 
@@ -3245,19 +3424,23 @@ const CHARTS = (() => {
   });
 
   const heatmap = (series) => ({
-    chart: { type: 'heatmap', height: 300 },
+    chart: { type: 'heatmap', height: 340 },
     series,
+    // A legenda de faixas fica embaixo; no topo ela disputava espaço com a
+    // barra de ferramentas e as duas se sobrepunham.
+    legend: { position: 'bottom', horizontalAlign: 'left', offsetY: 6 },
+    grid: { padding: { top: 30, left: 6, right: 12, bottom: 0 } },
     dataLabels: { enabled: false },
     plotOptions: {
       heatmap: {
         radius: 9, enableShades: false,
         colorScale: {
           ranges: [
-            { from: 0,     to: 0,      color: '#1C1C20', name: 'sem dado' },
-            { from: 0.001, to: 25,     color: C.purple3 },
-            { from: 25.001, to: 60,    color: C.purple },
-            { from: 60.001, to: 85,    color: C.yellow2 },
-            { from: 85.001, to: 1e12,  color: C.yellow }
+            { from: 0,      to: 0,   color: '#1C1C20', name: 'sem dado' },
+            { from: 0.001,  to: 25,  color: C.purple3, name: 'até 25% do melhor' },
+            { from: 25.001, to: 60,  color: C.purple,  name: '25% a 60%' },
+            { from: 60.001, to: 85,  color: C.yellow2, name: '60% a 85%' },
+            { from: 85.001, to: 100, color: C.yellow,  name: '85% a 100%' }
           ]
         }
       }
@@ -3389,7 +3572,14 @@ const CHARTS = (() => {
     if (!window.html2canvas || !window.jspdf) return U.toast('Bibliotecas de PDF ainda carregando. Tente de novo.', 'err');
 
     U.toast('Gerando PDF…');
-    const canvas = await html2canvas(node, { backgroundColor: '#0B0B0D', scale: 2, useCORS: true });
+    // Botões de ajuda, barras de ferramentas e paginação não fazem sentido
+    // num relatório impresso — sai tudo da foto.
+    document.body.classList.add('exporting');
+    await new Promise(r => setTimeout(r, 60));
+    const canvas = await html2canvas(node, {
+      backgroundColor: '#0B0B0D', scale: 3, useCORS: true, logging: false,
+      windowWidth: document.documentElement.clientWidth
+    }).finally(() => document.body.classList.remove('exporting'));
     const img = canvas.toDataURL('image/png');
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
@@ -3400,8 +3590,28 @@ const CHARTS = (() => {
     pdf.setTextColor(150); pdf.setFontSize(9);
     pdf.text(`Scalato BI · ${FILTERS.periodLabel()} · gerado em ${new Date().toLocaleString('pt-BR')}`, 28, 50);
 
-    const w = pw - 56, h = (canvas.height * w) / canvas.width;
-    pdf.addImage(img, 'PNG', 28, 62, w, Math.min(h, ph - 84));
+    // Painel comprido vira várias páginas em vez de ser espremido numa só
+    const w = pw - 56;
+    const h = (canvas.height * w) / canvas.width;
+    const top = 62, avail = ph - top - 26;
+
+    if (h <= avail) {
+      pdf.addImage(img, 'PNG', 28, top, w, h, undefined, 'FAST');
+    } else {
+      const pages = Math.ceil(h / avail);
+      const sliceH = canvas.height / pages;
+      for (let i = 0; i < pages; i++) {
+        if (i) { pdf.addPage(); pdf.setFillColor(11, 11, 13); pdf.rect(0, 0, pw, ph, 'F'); }
+        const part = document.createElement('canvas');
+        part.width = canvas.width;
+        part.height = Math.min(sliceH, canvas.height - i * sliceH);
+        part.getContext('2d').drawImage(canvas, 0, -i * sliceH);
+        pdf.addImage(part.toDataURL('image/png'), 'PNG', 28, i ? 26 : top, w,
+                     (part.height * w) / canvas.width, undefined, 'FAST');
+        pdf.setFontSize(8); pdf.setTextColor(120);
+        pdf.text(`${i + 1} de ${pages}`, pw - 60, ph - 14);
+      }
+    }
     pdf.save(`${title.replace(/[^\w\-]+/g, '-').toLowerCase()}.pdf`);
     U.toast('PDF salvo.', 'ok');
   }
@@ -3409,6 +3619,407 @@ const CHARTS = (() => {
   return { render, destroyAll, registry, exportPDF, bubble, C, PALETTE,
            lineArea, columns, donut, radar, heatmap, scatter, treemap, gauge, sparkline,
            fmtMoney, fmtInt, fmtPct };
+})();
+
+/* ==========================================================================
+   SCALATO BI — report.js
+   Monta o relatório executivo em PDF a partir do que está na tela.
+
+   São até três páginas, e cada uma só existe se tiver conteúdo:
+     1. Resumo executivo — os números que decidem alguma coisa + leitura rápida
+     2. Gráficos         — imagens em alta dos painéis da tela atual
+     3. Campanhas        — a tabela linha a linha
+
+   Nada aqui é desenho de tela fotografado: o texto é vetorial, então dá
+   para pesquisar e imprimir sem serrilhado. Só os gráficos entram como
+   imagem, e em resolução dobrada.
+   ========================================================================== */
+
+const REPORT = (() => {
+
+  const BG      = [11, 11, 13];
+  const CARD    = [23, 23, 26];
+  const LINE    = [42, 42, 42];
+  const YELLOW  = [255, 212, 0];
+  const WHITE   = [255, 255, 255];
+  const GRAY    = [175, 175, 182];
+  const PURPLE  = [166, 108, 255];
+
+  let pdf, W, H;
+
+  /* ------------------------------------------------------------------ */
+  /* Blocos de desenho                                                  */
+  /* ------------------------------------------------------------------ */
+
+  function newPage(first = false) {
+    if (!first) pdf.addPage();
+    pdf.setFillColor(...BG);
+    pdf.rect(0, 0, W, H, 'F');
+  }
+
+  /** Faixa amarela do topo, com a marca e o contexto do recorte. */
+  function header(title, subtitle, logo) {
+    pdf.setFillColor(...YELLOW);
+    pdf.roundedRect(28, 24, W - 56, 52, 10, 10, 'F');
+
+    if (logo) { try { pdf.addImage(logo, 'PNG', 40, 34, 32, 32, undefined, 'FAST'); } catch (e) {} }
+
+    pdf.setTextColor(11, 11, 13);
+    pdf.setFont('helvetica', 'bold'); pdf.setFontSize(16);
+    pdf.text(title, 84, 48);
+
+    pdf.setFont('helvetica', 'normal'); pdf.setFontSize(9);
+    pdf.text(subtitle, 84, 63, { maxWidth: W - 200 });
+
+    pdf.setFontSize(8);
+    pdf.text('SCALATO BI', W - 40, 48, { align: 'right' });
+    pdf.text(new Date().toLocaleString('pt-BR'), W - 40, 61, { align: 'right' });
+  }
+
+  function footer(page, total) {
+    pdf.setDrawColor(...LINE);
+    pdf.line(28, H - 30, W - 28, H - 30);
+    pdf.setTextColor(...GRAY); pdf.setFontSize(7.5);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text('Números extraídos dos arquivos importados. Métrica ausente aparece como traço, nunca como zero.', 28, H - 18);
+    pdf.text(`${page} / ${total}`, W - 28, H - 18, { align: 'right' });
+  }
+
+  /** Cartão de indicador: rótulo pequeno, número grande, nota embaixo. */
+  function kpiBox(x, y, w, h, label, value, note, accent) {
+    pdf.setFillColor(...CARD);
+    pdf.setDrawColor(...LINE);
+    pdf.roundedRect(x, y, w, h, 8, 8, 'FD');
+
+    pdf.setFillColor(...(accent || YELLOW));
+    pdf.roundedRect(x, y, 3.2, h, 2, 2, 'F');
+
+    pdf.setTextColor(...GRAY);
+    pdf.setFont('helvetica', 'bold'); pdf.setFontSize(7);
+    pdf.text(String(label).toUpperCase(), x + 12, y + 16);
+
+    const missing = value === U.NA;
+    pdf.setTextColor(...(missing ? GRAY : WHITE));
+    pdf.setFont('helvetica', 'bold'); pdf.setFontSize(missing ? 9 : 15);
+    pdf.text(missing ? 'não medido' : String(value), x + 12, y + (missing ? 34 : 37));
+
+    if (note) {
+      pdf.setTextColor(...GRAY);
+      pdf.setFont('helvetica', 'normal'); pdf.setFontSize(7);
+      pdf.text(String(note), x + 12, y + h - 10, { maxWidth: w - 22 });
+    }
+  }
+
+  function sectionTitle(y, text) {
+    pdf.setTextColor(...YELLOW);
+    pdf.setFont('helvetica', 'bold'); pdf.setFontSize(10);
+    pdf.text(text, 28, y);
+    pdf.setDrawColor(...LINE);
+    pdf.line(28, y + 6, W - 28, y + 6);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Leitura rápida                                                     */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * Frases derivadas do próprio recorte — nenhuma delas é texto fixo.
+   * A ordem é de prioridade: primeiro para onde o dinheiro foi, depois o
+   * que rendeu, depois o que está parado, e por último o que falta medir.
+   */
+  function insights(rows, m) {
+    const out = [];
+    const byKey = (key) => {
+      const map = new Map();
+      for (const r of rows) {
+        const k = r[key] || 'Não informado';
+        map.set(k, (map.get(k) || []).concat(r));
+      }
+      return map;
+    };
+
+    if (m.spend) {
+      const comVerba = [...byKey('campaign').values()].filter(rs => (U.sum(rs, 'spend') || 0) > 0).length;
+      out.push(`Foram investidos ${U.money(m.spend)} no recorte, distribuídos em ${U.int(comVerba)} campanha(s) com verba.`);
+    }
+
+    const src = [...byKey('source').entries()]
+      .map(([k, rs]) => ({ k, v: U.sum(rs, 'spend') || 0 }))
+      .filter(x => x.v > 0).sort((a, b) => b.v - a.v);
+    if (src.length > 1 && m.spend) {
+      const top = src[0];
+      out.push(`${top.k} concentra ${U.pct((top.v / m.spend) * 100, 1)} do investimento (${U.money(top.v)}), contra ${U.money(src[1].v)} de ${src[1].k}.`);
+    }
+
+    const comLead = [...byKey('campaign').entries()]
+      .map(([k, rs]) => ({ k, lead: (U.sum(rs, 'leads') || 0) + (U.sum(rs, 'registrations') || 0), spend: U.sum(rs, 'spend') || 0 }))
+      .filter(x => x.lead > 0 && x.spend > 0)
+      .map(x => ({ ...x, cpl: x.spend / x.lead }))
+      .sort((a, b) => a.cpl - b.cpl);
+    if (comLead.length) {
+      out.push(`Melhor custo por lead: ${U.money(comLead[0].cpl)} em "${comLead[0].k}" (${U.int(comLead[0].lead)} leads por ${U.money(comLead[0].spend)}).`);
+      if (comLead.length > 1) {
+        const pior = comLead[comLead.length - 1];
+        out.push(`O extremo oposto é "${pior.k}", a ${U.money(pior.cpl)} por lead — ${U.dec(pior.cpl / comLead[0].cpl, 1)}x o custo da melhor.`);
+      }
+    }
+
+    const paradas = [...byKey('campaign').entries()]
+      .map(([k, rs]) => ({ k, spend: U.sum(rs, 'spend') || 0,
+        res: (U.sum(rs, 'leads') || 0) + (U.sum(rs, 'registrations') || 0) + (U.sum(rs, 'conversions') || 0) }))
+      .filter(x => x.spend > 0 && x.res === 0);
+    if (paradas.length) {
+      const total = paradas.reduce((a, x) => a + x.spend, 0);
+      out.push(`${U.money(total)} foram para ${U.int(paradas.length)} campanha(s) que não registraram lead nem conversão no recorte.`);
+    }
+
+    if (m.ctr !== null && m.cpc !== null) {
+      out.push(`No consolidado, o CTR ficou em ${U.pct(m.ctr, 2)} e o clique custou ${U.money(m.cpc)}.`);
+    }
+
+    const faltando = [];
+    if (m.sales === null)   faltando.push('vendas');
+    if (m.revenue === null) faltando.push('receita');
+    if (m.messages === null) faltando.push('mensagens');
+    if (faltando.length) {
+      const lista = faltando.length > 1
+        ? faltando.slice(0, -1).join(', ') + ' e ' + faltando[faltando.length - 1]
+        : faltando[0];
+      out.push(`Sem dados de ${lista} nos arquivos, ROI, ROAS e ticket médio não puderam ser calculados — importar o CRM fecha essa lacuna.`);
+    }
+
+    return out;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Página 1 — resumo                                                  */
+  /* ------------------------------------------------------------------ */
+
+  function pageSummary(snap, logo) {
+    const { m, rows } = snap;
+    newPage(true);
+
+    const filtros = FILTERS.activeLabel();
+    header('Relatório Executivo',
+      `${FILTERS.periodLabel()}${filtros ? '  ·  ' + filtros : ''}  ·  ${U.int(rows.length)} registro(s)`,
+      logo);
+
+    sectionTitle(104, 'INDICADORES DO PERÍODO');
+
+    const cards = [
+      ['Valor investido', U.money(m.spend), 'total aplicado em mídia', YELLOW],
+      ['Leads', U.int(m.leadsTotal), 'formulários e cadastros', YELLOW],
+      ['Custo por lead', U.money(m.cpl), 'investimento ÷ leads', PURPLE],
+      ['Conversões', m.conversions === null ? U.NA : U.dec(m.conversions, 2), 'objetivo marcado pela plataforma', PURPLE],
+      ['Impressões', U.int(m.impressions), 'entregas do anúncio', YELLOW],
+      ['Cliques', U.int(m.clicks), `CTR de ${U.pct(m.ctr, 2)}`, YELLOW],
+      ['CPC', U.money(m.cpc), 'custo por clique', PURPLE],
+      ['Receita', U.money(m.revenue), m.revenue === null ? 'depende do CRM' : `ROAS ${U.dec(m.roas, 2)}x`, PURPLE]
+    ];
+
+    const cols = 4, gap = 12;
+    const cw = (W - 56 - gap * (cols - 1)) / cols, ch = 62;
+    cards.forEach((c, i) => {
+      const x = 28 + (i % cols) * (cw + gap);
+      const y = 118 + Math.floor(i / cols) * (ch + gap);
+      kpiBox(x, y, cw, ch, c[0], c[1], c[2], c[3]);
+    });
+
+    let y = 118 + 2 * (ch + gap) + 16;
+    sectionTitle(y, 'LEITURA RÁPIDA');
+    y += 22;
+
+    pdf.setFont('helvetica', 'normal'); pdf.setFontSize(9);
+    for (const line of insights(rows, m)) {
+      if (y > H - 60) break;
+      pdf.setFillColor(...YELLOW);
+      pdf.circle(32, y - 3, 2, 'F');
+      pdf.setTextColor(...WHITE);
+      const wrapped = pdf.splitTextToSize(line, W - 76);
+      pdf.text(wrapped, 42, y);
+      y += wrapped.length * 12 + 6;
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Página 2 — gráficos                                                */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * O funil é HTML, não um gráfico da biblioteca — então vira imagem por
+   * captura. Como é a peça que mais importa numa leitura executiva, ele
+   * entra antes dos demais.
+   */
+  async function captureNode(id, title) {
+    const node = document.getElementById(id);
+    if (!node || !node.offsetParent || !window.html2canvas) return null;
+    document.body.classList.add('exporting');
+    try {
+      const canvas = await html2canvas(node, {
+        backgroundColor: '#17171A', scale: 3, logging: false, useCORS: true
+      });
+      return { img: canvas.toDataURL('image/png'), title };
+    } catch (e) {
+      return null;
+    } finally {
+      document.body.classList.remove('exporting');
+    }
+  }
+
+  /** Pega as imagens dos gráficos visíveis na tela atual, em alta. */
+  async function collectCharts() {
+    const out = [];
+    for (const [id, label] of [['funnel-crm', 'Funil comercial'], ['funnel-main', 'Funil geral']]) {
+      const shot = await captureNode(id, label);
+      if (shot) { out.push(shot); break; }
+    }
+    for (const [id, entry] of CHARTS.registry) {
+      const node = document.getElementById(id);
+      if (!node || !node.offsetParent) continue;              // fora da tela ativa
+      if (id.startsWith('spark-')) continue;                  // minissérie não rende impressa
+      try {
+        const { imgURI } = await entry.chart.dataURI({ scale: 2 });
+        const panel = node.closest('.panel');
+        const h3 = panel && panel.querySelector('h3');
+        out.push({ img: imgURI, title: h3 ? h3.textContent.trim() : entry.title });
+      } catch (e) { /* gráfico ainda desenhando */ }
+      if (out.length >= 4) break;
+    }
+    return out;
+  }
+
+  function pageCharts(charts, logo, viewName) {
+    if (!charts.length) return false;
+    newPage();
+    header('Gráficos', `${viewName}  ·  ${FILTERS.periodLabel()}`, logo);
+
+    const cols = charts.length > 1 ? 2 : 1;
+    const rowsN = Math.ceil(charts.length / cols);
+    const gap = 14;
+    const cw = (W - 56 - gap * (cols - 1)) / cols;
+    const chH = (H - 150 - gap * (rowsN - 1)) / rowsN;
+
+    charts.forEach((c, i) => {
+      const x = 28 + (i % cols) * (cw + gap);
+      const y = 100 + Math.floor(i / cols) * (chH + gap);
+
+      pdf.setFillColor(...CARD); pdf.setDrawColor(...LINE);
+      pdf.roundedRect(x, y, cw, chH, 8, 8, 'FD');
+
+      pdf.setTextColor(...YELLOW);
+      pdf.setFont('helvetica', 'bold'); pdf.setFontSize(8.5);
+      pdf.text(c.title.toUpperCase(), x + 12, y + 17, { maxWidth: cw - 24 });
+
+      try {
+        const props = pdf.getImageProperties(c.img);
+        const availW = cw - 24, availH = chH - 34;
+        const ratio = Math.min(availW / props.width, availH / props.height);
+        const iw = props.width * ratio, ih = props.height * ratio;
+        pdf.addImage(c.img, 'PNG', x + (cw - iw) / 2, y + 26 + (availH - ih) / 2, iw, ih, undefined, 'FAST');
+      } catch (e) { /* imagem inválida */ }
+    });
+    return true;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Página 3 — campanhas                                               */
+  /* ------------------------------------------------------------------ */
+
+  function pageTable(snap, logo) {
+    const groups = new Map();
+    for (const r of snap.rows) {
+      const k = r.campaign || r.label || 'Sem identificação';
+      groups.set(k, (groups.get(k) || []).concat(r));
+    }
+
+    const body = [...groups.entries()].map(([name, rs]) => {
+      const a = APP.aggregate(rs);
+      return {
+        name, source: rs[0].source, spend: a.spend || 0, impressions: a.impressions || 0,
+        cells: [
+          name.length > 52 ? name.slice(0, 51) + '…' : name,
+          rs[0].source,
+          U.money(a.spend), U.int(a.impressions), U.int(a.clicks),
+          U.pct(a.ctr, 2), U.money(a.cpc), U.int(a.leadsTotal), U.money(a.cpl)
+        ]
+      };
+    }).filter(r => r.spend > 0 || r.impressions > 0)
+      .sort((a, b) => b.spend - a.spend);
+
+    if (!body.length || !pdf.autoTable) return false;
+
+    // O relatório cabe em três páginas; campanha parada não merece a quarta.
+    const LIMIT = 20;
+    const shown = body.slice(0, LIMIT);
+    const resto = body.length - shown.length;
+
+    newPage();
+    header('Campanhas',
+      `${body.length} campanha(s) com entrega no recorte${resto > 0 ? ` · mostrando as ${LIMIT} de maior investimento` : ''}  ·  ${FILTERS.periodLabel()}`,
+      logo);
+
+    pdf.autoTable({
+      startY: 100,
+      head: [['Campanha', 'Origem', 'Investido', 'Impressões', 'Cliques', 'CTR', 'CPC', 'Leads', 'Custo/lead']],
+      body: shown.map(r => r.cells),
+      theme: 'plain',
+      margin: { left: 28, right: 28 },
+      styles: { font: 'helvetica', fontSize: 8, cellPadding: 6, textColor: GRAY,
+                lineColor: LINE, lineWidth: .4 },
+      headStyles: { fillColor: [18, 18, 21], textColor: YELLOW, fontStyle: 'bold', fontSize: 7.5 },
+      alternateRowStyles: { fillColor: [20, 20, 23] },
+      bodyStyles: { fillColor: CARD },
+      columnStyles: {
+        0: { cellWidth: 200, textColor: WHITE },
+        2: { halign: 'right', textColor: WHITE }, 3: { halign: 'right' },
+        4: { halign: 'right' }, 5: { halign: 'right' },
+        6: { halign: 'right' }, 7: { halign: 'right', textColor: WHITE },
+        8: { halign: 'right', textColor: WHITE }
+      },
+      // Pintar o fundo depois do conteúdo apagaria a tabela: tem de ser antes.
+      willDrawPage: () => {
+        pdf.setFillColor(...BG);
+        pdf.rect(0, 0, W, H, 'F');
+      }
+    });
+    return true;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Orquestração                                                       */
+  /* ------------------------------------------------------------------ */
+
+  async function build() {
+    if (!window.jspdf) { U.toast('Biblioteca de PDF ainda carregando. Tente de novo em instantes.', 'err'); return; }
+
+    const snap = APP.snapshot();
+    if (!snap.rows.length) { U.toast('Não há dados no recorte atual para gerar relatório.', 'err'); return; }
+
+    U.toast('Montando o relatório…');
+    const { jsPDF } = window.jspdf;
+    pdf = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+    W = pdf.internal.pageSize.getWidth();
+    H = pdf.internal.pageSize.getHeight();
+
+    const logoEl = document.querySelector('.sidebar-brand img');
+    const logo = logoEl ? logoEl.src : null;
+
+    pageSummary(snap, logo);
+
+    // A tabela é reescrita pelo autoTable, que abre a própria página
+    const charts = await collectCharts();
+    pageCharts(charts, logo, snap.viewTitle);
+    pageTable(snap, logo);
+
+    const total = pdf.internal.getNumberOfPages();
+    for (let i = 1; i <= total; i++) { pdf.setPage(i); footer(i, total); }
+
+    const stamp = new Date().toISOString().slice(0, 10);
+    pdf.save(`scalato-relatorio-${stamp}.pdf`);
+    U.toast(`Relatório salvo com ${total} página(s).`, 'ok');
+  }
+
+  return { build };
 })();
 
 /* ==========================================================================
@@ -4025,7 +4636,15 @@ const APP = (() => {
 
   const tables = new Map();
 
-  function renderTable(tableId, columns, data) {
+  const escapeRe = v => String(v).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  /**
+   * @param opts.filterCol   índice da coluna que vira caixa de seleção
+   * @param opts.filterLabel rótulo dessa caixa
+   * A caixa lista apenas os valores presentes na tabela — digitar um nome
+   * de campanha inteiro não era realista com nomes deste tamanho.
+   */
+  function renderTable(tableId, columns, data, opts = {}) {
     const el = U.$('#' + tableId);
     if (!el) return;
     if (tables.has(tableId)) {
@@ -4041,7 +4660,7 @@ const APP = (() => {
         className: c.num ? 'num' : '',
         render: c.render || null
       })),
-      dom: 'Bfrtip',
+      dom: opts.filterCol === undefined ? 'Bfrtip' : '<"dt-head"B<"tbl-filter">>rtip',
       buttons: [
         { extend: 'excelHtml5', text: '<i class="fa-solid fa-file-excel"></i> Excel', title: 'Scalato BI' },
         { extend: 'csvHtml5',   text: '<i class="fa-solid fa-file-csv"></i> CSV', fieldSeparator: ';', bom: true },
@@ -4059,6 +4678,30 @@ const APP = (() => {
       }
     });
     tables.set(tableId, dt);
+
+    if (opts.filterCol !== undefined) {
+      const wrapper = el.closest('.dataTables_wrapper');
+      const holder = wrapper && wrapper.querySelector('.tbl-filter');
+      if (!holder) return;                 // tabela montada sem o slot do filtro
+      const col = opts.filterCol;
+      const values = [...new Set(data.map(d => {
+        const raw = d[columns[col].data];
+        return raw === null || raw === undefined ? '' : String(raw);
+      }).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
+      holder.innerHTML = `
+        <label class="fl-label" for="${tableId}-flt">${U.esc(opts.filterLabel || 'Filtrar')}</label>
+        <select class="select" id="${tableId}-flt">
+          <option value="">Todas (${values.length})</option>
+          ${values.map(v => `<option value="${U.esc(v)}">${U.esc(v.length > 64 ? v.slice(0, 63) + '…' : v)}</option>`).join('')}
+        </select>`;
+
+      holder.querySelector('select').addEventListener('change', e => {
+        const v = e.target.value;
+        e.target.classList.toggle('is-active', !!v);
+        dt.column(col).search(v ? '^' + escapeRe(v) + '$' : '', true, false).draw();
+      });
+    }
   }
 
   /* ====================================================================== */
@@ -4157,7 +4800,7 @@ const APP = (() => {
       { title: 'Leads', data: 'leads', num: true, render: d => U.int(d) },
       { title: 'Custo/lead', data: 'cpl', num: true, render: d => U.money(d) },
       { title: 'CTR', data: 'ctr', num: true, render: d => U.pct(d, 2) }
-    ], rowsTable);
+    ], rowsTable, { filterCol: 0, filterLabel: 'Campanha' });
 
     rankList('rank-destaques', rank(CURRENT, 'campaign', 'leadsTotal', 6), U.int);
   }
@@ -4325,7 +4968,7 @@ const APP = (() => {
     ], CURRENT.filter(r => r.source === 'CRM').map(r => ({
       nome: r.contactName || r.label, etapa: r.stage || r.status || '—',
       produto: r.product || '—', cidade: r.city || '—', receita: r.revenue
-    })));
+    })), { filterCol: 1, filterLabel: 'Etapa' });
   }
 
   /* --- 7.4 Comparativos ------------------------------------------------- */
@@ -4425,7 +5068,7 @@ const APP = (() => {
       { title: 'Leads',       data: 'leadsTotal', num: true, render: d => U.int(d) },
       { title: 'Conversões',  data: 'conversions', num: true, render: d => U.dec(d, 2) },
       { title: 'Custo/lead',  data: 'cpl', num: true, render: d => U.money(d) }
-    ], srcs.map((s, i) => ({ origem: s, ...aggs[i] })));
+    ], srcs.map((s, i) => ({ origem: s, ...aggs[i] })), { filterCol: 0, filterLabel: 'Origem' });
   }
 
   /* --- 7.5 Períodos ----------------------------------------------------- */
@@ -4677,8 +5320,10 @@ const APP = (() => {
 
     const cmpTxt = FILTERS.compareLabel();
     const rateTxt = FILTERS.rateLabel();
-    U.$('#period-pill').innerHTML = `<i class="fa-regular fa-calendar"></i> ${U.esc(FILTERS.periodLabel())}` +
+    const periodPill = U.$('#period-pill');
+    periodPill.innerHTML = `<i class="fa-regular fa-calendar"></i> ${U.esc(FILTERS.periodShort())}` +
       (cmpTxt ? ` <span style="opacity:.62;font-weight:500">· ${U.esc(cmpTxt)}</span>` : '');
+    periodPill.title = FILTERS.periodLabel() + (cmpTxt ? ' · ' + cmpTxt : '');
     const activePill = U.$('#filters-pill');
     if (activePill) {
       const act = FILTERS.activeLabel();
@@ -4747,6 +5392,7 @@ const APP = (() => {
       });
     });
     U.$('#toggle-sidebar').addEventListener('click', () => U.$('#sidebar').classList.toggle('collapsed'));
+    U.$('#btn-report').addEventListener('click', () => REPORT.build());
     U.$('#btn-pdf').addEventListener('click', () => {
       const [t] = TITLES[VIEW];
       CHARTS.exportPDF(U.$('#view-' + VIEW), 'Scalato BI — ' + t);
@@ -4767,7 +5413,18 @@ const APP = (() => {
     window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(refresh, 320); });
   }
 
-  return { start, go, refresh, toggleMap, ingest, aggregate };
+  /** Retrato do que está na tela — usado pelo gerador de relatório. */
+  function snapshot() {
+    return {
+      rows: CURRENT,
+      m: aggregate(CURRENT),
+      prev: PREVIOUS ? aggregate(PREVIOUS) : null,
+      view: VIEW,
+      viewTitle: (TITLES[VIEW] || ['Painel'])[0]
+    };
+  }
+
+  return { start, go, refresh, toggleMap, ingest, aggregate, snapshot };
 })();
 
     // Login em sobreposição: ao autenticar, o painel assume a tela.
